@@ -22,11 +22,11 @@ class tmallSpider(scrapy.Spider):
 
     name = 'tspider'
     start_urls = [
-        'https://list.tmall.com/search_product.htm?q={}'.format('iPad air3')
+        'https://list.tmall.com/search_product.htm?q={}'.format('ipad')
     ]
 
     def parse(self, response):
-        #open_in_browser(response)
+        open_in_browser(response)
         items = TmallspiderItem()
         product_info = response.css('.product-iWrap')
 
@@ -56,24 +56,6 @@ class jdSpider(scrapy.Spider):
             items['product_price_jd'] = product_price_jd
             yield items
 
-class snSpider(scrapy.Spider):
-    name = 'sspider'
-    start_urls = [
-        'https://search.suning.com/{}/'.format('iPad air 3')
-    ]
-
-    def parse(self, response):
-
-        items = SnspiderItem()
-        product_info = response.css('.item-bg')
-        for product in product_info:
-            product_name_sn = product.css('.title-selling-point').xpath('normalize-space(.)').get()
-            product_price_sn = product.xpath("//strong/text()").extract()[2]
-
-            items['product_name_sn'] = product_name_sn
-            items['product_price_sn'] = product_price_sn
-            yield items
-
 class ddSpider(scrapy.Spider):
     name = 'dspider'
     start_urls = [
@@ -89,6 +71,27 @@ class ddSpider(scrapy.Spider):
             items['product_name_dd'] = product_name_dd
             items['product_price_dd'] = product_price_dd
             yield items
+
+class snSpider(scrapy.Spider):
+    name = 'sspider'
+    start_urls = [
+        'http://search.suning.com/{}/'.format('iPad air 3')
+    ]
+
+    def parse(self, response):
+        #open_in_browser(response)
+        product_info = response.css('.item-bg')
+        for product in product_info:
+            product_link = 'http:'+product.css('a::attr(href)')[0].extract()
+            yield scrapy.Request(product_link, callback=self.start_scraping)
+
+    def start_scraping(self, response):
+        #open_in_browser(response)
+        items = SnspiderItem()
+        items['product_name_sn'] = response.css('#itemDisplayName').xpath('normalize-space(.)').get()
+        items['product_price_sn'] = response.css('.mainprice').extract()
+        yield items
+
 '''
 process = CrawlerProcess(settings={
     "FEEDS": {
@@ -106,24 +109,3 @@ process.crawl(ddSpider)
 process.start()
 '''
 
-'''
-"FEEDS": {
-        "item.csv": {"format": "csv"},
-    },
-    
-这段代码可以实现点进去 但点进去后 如果不选容量 颜色等细节 则不会自动显示价格
-class tmallSpider(scrapy.Spider):
-    name = 'tspider'
-    start_urls = [
-        'https://list.tmall.com/search_product.htm?q={}'.format('ipad air3')
-    ]
-
-    def parse(self, response):
-        product_info = response.css('.product-iWrap')
-        for product in product_info:
-            product_detail_link = 'http:'+product.css('a::attr(href)')[0].extract()
-            yield scrapy.Request(product_detail_link, callback=self.start_scraping)
-
-    def start_scraping(self, response):
-        items = TmallspiderItem()
-'''
