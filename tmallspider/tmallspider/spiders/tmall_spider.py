@@ -24,6 +24,10 @@ class tmallSpider(scrapy.Spider):
     ]
 
     items = TmallspiderItem()
+
+    def __init__(self):
+        self.driver = webdriver.Chrome(executable_path = '/usr/bin/chromedriver')
+
     def parse(self, response):
         #open_in_browser(response)
         product_info = response.css('.product-iWrap')
@@ -37,7 +41,12 @@ class tmallSpider(scrapy.Spider):
             yield scrapy.Request(product_detail_link, callback=self.start_scraping)
 
     def start_scraping(self, response):
-        discount = response.css('.tm-gold dd').extract()
+        self.driver.get(response.url)
+        self.driver.find_element_by_id('fm-login-id').send_keys('iamgooglepenn')
+        self.driver.find_element_by_id('fm-login-password').send_keys('HelloWorld1_')
+        self.driver.find_element_by_class_name('fm-button fm-submit password-login').click()
+        discount = self.driver.find_element_by_css_selector('.tm-gold dd')
+        #discount = response.css('.tm-gold dd').extract()
         tmallSpider.items['product_discount_tmall'] = discount
         yield tmallSpider.items
 
@@ -64,7 +73,7 @@ class jdSpider(scrapy.Spider):
             yield scrapy.Request(product_detail_link, callback=self.start_scraping)
 
     def start_scraping(self, response):
-        open_in_browser(response)
+        #open_in_browser(response)
         product_discount_jd = response.css('#summary-quan .text').extract()
         jdSpider.items['product_discount_jd'] = product_discount_jd
         yield jdSpider.items
@@ -98,7 +107,7 @@ class snSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        open_in_browser(response)
+        #open_in_browser(response)
         product_info = response.css('.item-bg')
         for product in product_info:
             product_link = 'http:'+product.css('a::attr(href)')[0].extract()
