@@ -1,68 +1,85 @@
 from __future__ import absolute_import
-import pathlib
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import scrapy
-from scrapy import spiderloader
-from scrapy.utils import project
-from scrapy.utils.project import get_project_settings
-from twisted import runner
-from twisted.internet.defer import inlineCallbacks
-from multiprocessing import Process
 from tmallspider.items import TmallspiderItem
 from tmallspider.items import JdspiderItem
 from tmallspider.items import SnspiderItem
 from tmallspider.items import DdspiderItem
 from scrapy.utils.response import open_in_browser
-from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner, CrawlerProcess
-from scrapy.utils.log import configure_logging
-from scrapy.utils.project import get_project_settings
-from twisted.internet import reactor
+import urllib.parse
+
+def encodeGB2312(data):
+    hexData = data.encode(encoding='GB2312').hex().upper()
+    encoded = '%' + '%'.join(hexData[i:i + 2] for i in range(0, len(hexData), 2))
+    return encoded
 
 class tmallSpider(scrapy.Spider):
 
     name = 'tspider'
+    output = encodeGB2312('iPad air 3')
     start_urls = [
-        'https://list.tmall.com/search_product.htm?q={}'.format('ipad')
+        'https://list.tmall.com/search_product.htm?q={}'.format(output)
     ]
 
+    items = TmallspiderItem()
     def parse(self, response):
-        open_in_browser(response)
-        items = TmallspiderItem()
+        #open_in_browser(response)
         product_info = response.css('.product-iWrap')
 
         for product in product_info:
             product_name_tmall = product.css('.productTitle a').xpath('normalize-space(.)').get()
             product_price_tmall = product.css('.productPrice em::text').extract()
-            items['product_name_tmall'] = product_name_tmall
-            items['product_price_tmall'] = product_price_tmall
-            yield items
+            tmallSpider.items['product_name_tmall'] = product_name_tmall
+            tmallSpider.items['product_price_tmall'] = product_price_tmall
+            product_detail_link = 'http:' + product.css('a::attr(href)')[0].extract()
+            yield scrapy.Request(product_detail_link, callback=self.start_scraping)
+
+    def start_scraping(self, response):
+        discount = response.css('.tm-gold dd').extract()
+        tmallSpider.items['product_discount_tmall'] = discount
+        yield tmallSpider.items
 
 class jdSpider(scrapy.Spider):
 
     name = 'jspider'
+    keyword ='ipad air 3'
     start_urls = [
-        'https://search.jd.com/Search?keyword={}'.format('iPad air3')
+        'https://search.jd.com/Search?{url_suffix}'.format(url_suffix=urllib.parse.urlencode({'keyword': keyword}, encoding='utf-8'))
     ]
-
+    items = JdspiderItem()
     def parse(self, response):
         #open_in_browser(response)
-        items = JdspiderItem()
         product_info = response.css('.gl-i-wrap')
+        product = product_info[0]
 
         for product in product_info:
             product_name_jd = product.css('.p-name-type-2 em').xpath('normalize-space(.)').get()
             product_price_jd = product.css('.p-price i').xpath('normalize-space(.)').get()
-            items['product_name_jd'] = product_name_jd
-            items['product_price_jd'] = product_price_jd
-            yield items
+            jdSpider.items['product_name_jd'] = product_name_jd
+            jdSpider.items['product_price_jd'] = product_price_jd
+            
+            product_detail_link = 'http:'+product.css('a::attr(href)')[0].extract()
+            yield scrapy.Request(product_detail_link, callback=self.start_scraping)
+
+    def start_scraping(self, response):
+        open_in_browser(response)
+        product_discount_jd = response.css('#summary-quan .text').extract()
+        jdSpider.items['product_discount_jd'] = product_discount_jd
+        yield jdSpider.items
 
 class ddSpider(scrapy.Spider):
     name = 'dspider'
+
+    output = encodeGB2312('ipad air 3')
+
     start_urls = [
-        'http://search.dangdang.com/?key={}&act=input'.format('iPad air 3')
+        'http://search.dangdang.com/?key={}&act=input'.format(output)
     ]
 
     def parse(self, response):
+        #open_in_browser(response)
         items = DdspiderItem()
         product_info = response.css('#component_59 li')
         for product in product_info:
@@ -74,19 +91,21 @@ class ddSpider(scrapy.Spider):
 
 class snSpider(scrapy.Spider):
     name = 'sspider'
+    keyword = 'ipad air 3 64G'
     start_urls = [
-        'http://search.suning.com/{}/'.format('iPad air 3')
+        'https://search.suning.com/{}/'.format('iPad air 3')
+        #'https://search.suning.com/{url_suffix}/'.format(url_suffix=urllib.parse.urlencode({'keyword': keyword}, encoding='utf-8'))
     ]
 
     def parse(self, response):
-        #open_in_browser(response)
+        open_in_browser(response)
         product_info = response.css('.item-bg')
         for product in product_info:
             product_link = 'http:'+product.css('a::attr(href)')[0].extract()
             yield scrapy.Request(product_link, callback=self.start_scraping)
 
     def start_scraping(self, response):
-        #open_in_browser(response)
+        #open_in_browser(response) DO NOT UNCOMMENT
         items = SnspiderItem()
         items['product_name_sn'] = response.css('#itemDisplayName').xpath('normalize-space(.)').get()
         items['product_price_sn'] = response.css('.mainprice').extract()

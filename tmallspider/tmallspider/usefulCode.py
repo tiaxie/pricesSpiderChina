@@ -18,4 +18,5 @@ class tmallSpider(scrapy.Spider):
 
     def start_scraping(self, response):
         items = TmallspiderItem()
+
 '''

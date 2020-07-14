@@ -10,10 +10,12 @@ class TmallspiderItem(scrapy.Item):
     # define the fields for your item here like:
     product_name_tmall = scrapy.Field()
     product_price_tmall = scrapy.Field()
+    product_discount_tmall = scrapy.Field()
 
 class JdspiderItem(scrapy.Item):
     product_name_jd = scrapy.Field()
     product_price_jd = scrapy.Field()
+    product_discount_jd = scrapy.Field()
 
 class SnspiderItem(scrapy.Item):
     product_name_sn = scrapy.Field()
