@@ -35,7 +35,6 @@ class tmallSpider(scrapy.Spider):
     def parse(self, response):
         #open_in_browser(response)
         product_info = response.css('.product-iWrap')
-
         for product in product_info:
             product_name_tmall = product.css('.productTitle a').xpath('normalize-space(.)').get()
             product_price_tmall = product.css('.productPrice em::text').extract()
@@ -46,10 +45,11 @@ class tmallSpider(scrapy.Spider):
 
     def start_scraping(self, response):
         self.driver.get(response.url)
-
+        self.driver.switch_to.frame(self.driver.find_element_by_id('sufei-dialog-content'))
         self.driver.find_element_by_id('fm-login-id').send_keys('iamgooglepenn')
-        self.driver.find_element_by_id('fm-login-password').send_keys('HelloWorld1_')
-        self.driver.find_element_by_class_name('fm-button fm-submit password-login').click()
+        self.driver.find_element_by_id('fm-login-password').send_keys('Hello_World2019')
+        self.time.sleep(5)
+        self.driver.find_element_by_css_selector('.fm-button.fm-submit.password-login').click()
         discount = self.driver.find_element_by_css_selector('.tm-gold dd')
         #discount = response.css('.tm-gold dd').extract()
         tmallSpider.items['product_discount_tmall'] = discount
@@ -64,7 +64,7 @@ class jdSpider(scrapy.Spider):
     ]
     items = JdspiderItem()
     def parse(self, response):
-        #open_in_browser(response)
+        open_in_browser(response)
         product_info = response.css('.gl-i-wrap')
         product = product_info[0]
 
@@ -85,15 +85,13 @@ class jdSpider(scrapy.Spider):
 
 class ddSpider(scrapy.Spider):
     name = 'dspider'
-
     output = encodeGB2312('ipad air 3')
-
     start_urls = [
         'http://search.dangdang.com/?key={}&act=input'.format(output)
     ]
 
     def parse(self, response):
-        #open_in_browser(response)
+        open_in_browser(response)
         items = DdspiderItem()
         product_info = response.css('#component_59 li')
         for product in product_info:
