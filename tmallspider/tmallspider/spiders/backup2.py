@@ -1,3 +1,4 @@
+'''
 from __future__ import absolute_import
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -73,7 +74,7 @@ class jdSpider(scrapy.Spider):
             product_price_jd = product.css('.p-price i').xpath('normalize-space(.)').get()
             jdSpider.items['product_name_jd'] = product_name_jd
             jdSpider.items['product_price_jd'] = product_price_jd
-            
+
             product_detail_link = 'http:'+product.css('a::attr(href)')[0].extract()
             yield scrapy.Request(product_detail_link, callback=self.start_scraping)
 
@@ -123,7 +124,7 @@ class snSpider(scrapy.Spider):
         items['product_price_sn'] = response.css('.mainprice').extract()
         yield items
 
-'''
+
 process = CrawlerProcess(settings={
     "FEEDS": {
         "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall'],},
@@ -138,5 +139,5 @@ process.crawl(jdSpider)
 process.crawl(snSpider)
 process.crawl(ddSpider)
 process.start()
-'''
 
+'''
