@@ -1,10 +1,12 @@
 from __future__ import absolute_import
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 import scrapy
+from selenium.webdriver import ActionChains
 from tmallspider.items import TmallspiderItem
 from tmallspider.items import JdspiderItem
 from tmallspider.items import SnspiderItem
@@ -45,12 +47,22 @@ class tmallSpider(scrapy.Spider):
 
     def start_scraping(self, response):
         self.driver.get(response.url)
-        self.driver.switch_to.frame(self.driver.find_element_by_id('sufei-dialog-content'))
-        self.driver.find_element_by_id('fm-login-id').send_keys('iamgooglepenn')
-        self.driver.find_element_by_id('fm-login-password').send_keys('Hello_World2019')
-        self.driver.find_element_by_css_selector('.fm-button.fm-submit.password-login').click()
-        self.time.sleep(50)
-        discount = self.driver.find_element_by_css_selector('.tm-gold dd')
+        #is_present = self.driver.find_elements(By.ID('sufei-dialog-content')).size() > 0
+        login_frame = self.driver.find_elements_by_id('sufei-dialog-content')
+        if not login_frame:
+            time.sleep(2)
+            discount = self.driver.find_element_by_css_selector('.tm-gold dd')
+        else:
+            self.driver.switch_to.frame(self.driver.find_element_by_id('sufei-dialog-content'))
+            self.driver.find_element_by_id('fm-login-id').send_keys('iamgooglepenn')
+            self.driver.find_element_by_id('fm-login-password').send_keys('Hello_World2019')
+            time.sleep(2)
+            source_element = self.driver.find_element_by_id('nc_1_n1z')
+            ActionChains(self.driver).drag_and_drop_by_offset(source_element, 268, 0).perform()
+            self.driver.find_element_by_class_name('fm-btn').click()
+            time.sleep(2)
+            discount = self.driver.find_element_by_css_selector('.tm-gold dd')
+
         #discount = response.css('.tm-gold dd').extract()
         tmallSpider.items['product_discount_tmall'] = discount
         yield tmallSpider.items
