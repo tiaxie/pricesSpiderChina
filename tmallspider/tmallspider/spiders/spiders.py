@@ -34,6 +34,6 @@ class tmallSpider(scrapy.Spider):
         source_element = self.driver.find_element_by_id('nc_1_n1z')
         ActionChains(self.driver).drag_and_drop_by_offset(source_element, 268, 0).perform()
         self.driver.find_element_by_class_name('fm-button fm-submit password-login').click()
-        time.sleep(5)
-        self.driver.find_element_by_class_name('s=combobox-input-wrap').send_keys('iPad')
+
+        #self.driver.find_element_by_class_name('s=combobox-input-wrap').send_keys('iPad')
 
