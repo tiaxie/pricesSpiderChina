@@ -30,8 +30,10 @@ class tmallSpider(scrapy.Spider):
         self.driver.switch_to.frame(self.driver.find_element_by_id('J_loginIframe'))
         self.driver.find_element_by_name('fm-login-id').send_keys('iamgooglepenn')
         self.driver.find_element_by_id('fm-login-password').send_keys('Hello_World2019')
+        time.sleep(2)
         source_element = self.driver.find_element_by_id('nc_1_n1z')
         ActionChains(self.driver).drag_and_drop_by_offset(source_element, 268, 0).perform()
         self.driver.find_element_by_class_name('fm-button fm-submit password-login').click()
+        time.sleep(5)
         self.driver.find_element_by_class_name('s=combobox-input-wrap').send_keys('iPad')
 
