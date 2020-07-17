@@ -50,4 +50,18 @@ class tmallSpider(scrapy.Spider):
             tmallSpider.items['product_name_tmall'] = product_name_tmall.get_attribute('title')
             tmallSpider.items['product_price_tmall'] = product_price_tmall.get_attribute('title')
             yield tmallSpider.items
+
+
+for i in range(n):
+            if i == 0:
+                break
+            self.driver.switch_to.window(self.driver.window_handles[i])
+            try:
+                time.sleep(2)
+                product_disount_tmall = self.driver.find_element_by_css_selector('.tm-price').text
+                tmallSpider.items['product_discount_tmall'] = product_disount_tmall
+            except NoSuchElementException:
+                tmallSpider.items['product_discount_tmall'] = 'no discount'
+            yield tmallSpider.items
 '''
+

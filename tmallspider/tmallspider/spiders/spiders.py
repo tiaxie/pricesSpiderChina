@@ -19,7 +19,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 class tmallSpider(scrapy.Spider):
     name = 'ttspider'
-    output = 'iPad'
     start_urls = [
         'http://login.tmall.com'
     ]
@@ -46,7 +45,7 @@ class tmallSpider(scrapy.Spider):
         n = 0
         #yanzheng = 0
         for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.product-iWrap'))):
-            if n < 2:
+            if n < 5:
                 n += 1
                 #if yanzheng == 0:
                 #    yanzheng += 1
@@ -58,21 +57,42 @@ class tmallSpider(scrapy.Spider):
                 product_price_tmall = element.find_element_by_css_selector('.productPrice em')
                 tmallSpider.items['product_name_tmall'] = product_name_tmall.get_attribute('title')
                 tmallSpider.items['product_price_tmall'] = product_price_tmall.get_attribute('title')
-                #new
 
+                home_page = self.driver.window_handles[0]
                 element.click()
-                self.driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
-                self.driver.get(response.url)
-                time.sleep(2)
-                #self.driver.switch_to(self.driver.window_handles[n])
+                window_detail = self.driver.window_handles[n]
+                self.driver.switch_to_window(window_detail)
                 try:
                     time.sleep(2)
-                    product_disount_tmall = self.driver.find_element_by_css_selector('.tm-price').text
+                    product_disount_tmall = self.driver.find_element_by_css_selector('.tm-gold dd').text
                     tmallSpider.items['product_discount_tmall'] = product_disount_tmall
                 except NoSuchElementException:
                     tmallSpider.items['product_discount_tmall'] = 'no discount'
-                self.driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
                 yield tmallSpider.items
-                #new
+                self.driver.switch_to_window(home_page)
 
+class jdSpider(scrapy.Spider):
+    name = 'jjspider'
+    start_urls = [
+        'http://jd.com'
+    ]
+    items = JdspiderItem()
 
+    def __init__(self):
+        self.driver = webdriver.Chrome(executable_path = '/usr/bin/chromedriver')
+
+    def parse(self, response):
+        self.driver.get(response.url)
+        self.driver.find_element_by_id('key').send_keys('iPad Air 3')
+        time.sleep(2)
+        self.driver.find_element_by_css_selector('.button').click()
+        n = 0
+        for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.gl-i-wrap'))):
+            if n < 3:
+                n += 1
+                time.sleep(2)
+                product_name_jd = element.find_element_by_css_selector('.p-name-type-2 em').text
+                tmallSpider.items = tmallSpider.items['product_name_jd'] = product_name_jd
+                product_price_jd = element.find_element_by_css_selector('.p-price i').text
+                tmallSpider.items = tmallSpider.items['product_price_jd'] = product_price_jd
+                yield tmallSpider.items
