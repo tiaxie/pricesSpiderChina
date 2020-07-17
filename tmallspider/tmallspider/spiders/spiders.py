@@ -17,6 +17,11 @@ import urllib.parse
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 
+def encodeGB2312(data):
+    hexData = data.encode(encoding='GB2312').hex().upper()
+    encoded = '%' + '%'.join(hexData[i:i + 2] for i in range(0, len(hexData), 2))
+    return encoded
+
 class tmallSpider(scrapy.Spider):
     name = 'ttspider'
     start_urls = [
@@ -91,8 +96,76 @@ class jdSpider(scrapy.Spider):
             if n < 3:
                 n += 1
                 time.sleep(2)
-                product_name_jd = element.find_element_by_css_selector('.p-name-type-2 em').text
-                tmallSpider.items = tmallSpider.items['product_name_jd'] = product_name_jd
+
+                product_name_jd = element.find_element_by_css_selector('.p-name-type-2').text
+                product_name_jd = product_name_jd.split('"')[-1].strip()
                 product_price_jd = element.find_element_by_css_selector('.p-price i').text
-                tmallSpider.items = tmallSpider.items['product_price_jd'] = product_price_jd
-                yield tmallSpider.items
+                jdSpider.items['product_name_jd'] = product_name_jd
+                jdSpider.items['product_price_jd'] = product_price_jd
+                home_page = self.driver.window_handles[0]
+                element.click()
+                time.sleep(2)
+                window_detail = self.driver.window_handles[n]
+                self.driver.switch_to_window(window_detail)
+                try:
+                    product_discount_jd = self.driver.find_element_by_css_selector('#summary-quan .text').text
+                    jdSpider.items['product_discount_jd'] = product_discount_jd
+                except NoSuchElementException:
+                    jdSpider.items['product_discount_jd'] = 'no discount'
+                yield jdSpider.items
+                self.driver.switch_to_window(home_page)
+
+class ddSpider(scrapy.Spider):
+    name = 'dspider'
+    output = encodeGB2312('ipad air 3')
+    start_urls = [
+        'http://search.dangdang.com/?key={}&act=input'.format(output)
+    ]
+
+    def parse(self, response):
+        open_in_browser(response)
+        items = DdspiderItem()
+        product_info = response.css('#component_59 li')
+        for product in product_info:
+            product_name_dd = product.css('.name a::attr(title)').extract()
+            product_price_dd = product.css('.price_n::text').extract()
+            items['product_name_dd'] = product_name_dd
+            items['product_price_dd'] = product_price_dd
+            yield items
+
+class snSpider(scrapy.Spider):
+    name = 'snspider'
+
+    start_urls = [
+       'https://www.suning.com/'
+    ]
+    items = SnspiderItem()
+    def __init__(self):
+        self.driver = webdriver.Chrome(executable_path = '/usr/bin/chromedriver')
+
+    def parse(self, response):
+        self.driver.get(response.url)
+        self.driver.find_element_by_id('searchKeywords').send_keys('iPad Air 3')
+        time.sleep(1)
+        self.driver.find_element_by_id('searchSubmit').click()
+        n = 0
+        for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.item-bg'))):
+            if n < 3:
+                n += 1
+                home_page = self.driver.window_handles[0]
+                element.click()
+                time.sleep(2)
+                window_detail = self.driver.window_handles[n]
+                self.driver.switch_to_window(window_detail)
+                product_name_sn = element.find_element_by_css_selector('#itemDisplayName').text
+                product_price_sn = element.find_element_by_css_selector('.mainprice').text
+                snSpider.items['product_name_sn'] = product_name_sn
+                snSpider.items['product_price_sn'] = product_price_sn
+                try:
+                    product_discount_sn = self.driver.find_elements_by_css_selector('.p-quan-white')
+                    print("aaaaaa" + product_discount_sn)
+                    #snSpider.items['product_discount_jd'] = product_discount_sn
+                except NoSuchElementException:
+                    snSpider.items['product_discount_jd'] = 'no discount'
+                yield snSpider.items
+                self.driver.switch_to_window(home_page)

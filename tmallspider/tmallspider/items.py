@@ -20,10 +20,11 @@ class JdspiderItem(scrapy.Item):
 class SnspiderItem(scrapy.Item):
     product_name_sn = scrapy.Field()
     product_price_sn = scrapy.Field()
-    ilink = scrapy.Field()
+    product_discount_sn = scrapy.Field()
 
 class DdspiderItem(scrapy.Item):
     product_name_dd = scrapy.Field()
     product_price_dd = scrapy.Field()
+    product_discount_dd = scrapy.Field()
 
 
