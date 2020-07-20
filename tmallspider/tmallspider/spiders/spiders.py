@@ -41,14 +41,15 @@ class tmallSpider(scrapy.Spider):
         time.sleep(2)
         source_element = self.driver.find_element_by_id('nc_1_n1z')
         ActionChains(self.driver).drag_and_drop_by_offset(source_element, 270, 0).perform()
+        time.sleep(1)
         self.driver.find_element_by_class_name('fm-btn').click()
         #fm-button fm-submit password-login
-        time.sleep(2)
-        self.driver.find_element_by_name('q').send_keys('iPad')
+        time.sleep(5)
+        self.driver.find_element_by_name('q').send_keys('beats powerbeats pro')
         time.sleep(2)
         self.driver.find_element_by_css_selector('button').click()
         n = 0
-        #yanzheng = 0
+
         for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.product-iWrap'))):
             if n < 5:
                 n += 1
@@ -88,12 +89,13 @@ class jdSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('key').send_keys('iPad Air 3')
+        self.driver.find_element_by_id('key').send_keys('beats powerbeats pro')
         time.sleep(2)
         self.driver.find_element_by_css_selector('.button').click()
         n = 0
         for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.gl-i-wrap'))):
-            if n < 3:
+            click_item = self.driver.find_element_by_class_name('p-img')
+            if n < 6:
                 n += 1
                 time.sleep(2)
 
@@ -102,8 +104,11 @@ class jdSpider(scrapy.Spider):
                 product_price_jd = element.find_element_by_css_selector('.p-price i').text
                 jdSpider.items['product_name_jd'] = product_name_jd
                 jdSpider.items['product_price_jd'] = product_price_jd
+
                 home_page = self.driver.window_handles[0]
-                element.click()
+                click_item.click()
+                print('aaaaaa')
+                print(n)
                 time.sleep(2)
                 window_detail = self.driver.window_handles[n]
                 self.driver.switch_to_window(window_detail)
@@ -116,7 +121,7 @@ class jdSpider(scrapy.Spider):
                 self.driver.switch_to_window(home_page)
 
 class ddSpider(scrapy.Spider):
-    name = 'dspider'
+    name = 'ddspider'
     output = encodeGB2312('ipad air 3')
     start_urls = [
         'http://search.dangdang.com/?key={}&act=input'.format(output)
@@ -149,23 +154,27 @@ class snSpider(scrapy.Spider):
         time.sleep(1)
         self.driver.find_element_by_id('searchSubmit').click()
         n = 0
+        home_page = self.driver.window_handles[0]
         for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.item-bg'))):
-            if n < 3:
+            if n < 5:
                 n += 1
-                home_page = self.driver.window_handles[0]
                 element.click()
-                time.sleep(2)
+                print('aaaaaa' + n.__str__())
                 window_detail = self.driver.window_handles[n]
+                print('bbbbb' + window_detail)
                 self.driver.switch_to_window(window_detail)
+                print('ccccc')
                 product_name_sn = element.find_element_by_css_selector('#itemDisplayName').text
                 product_price_sn = element.find_element_by_css_selector('.mainprice').text
                 snSpider.items['product_name_sn'] = product_name_sn
                 snSpider.items['product_price_sn'] = product_price_sn
                 try:
                     product_discount_sn = self.driver.find_elements_by_css_selector('.p-quan-white')
-                    print("aaaaaa" + product_discount_sn)
+                    print("eeee" + product_discount_sn)
                     #snSpider.items['product_discount_jd'] = product_discount_sn
                 except NoSuchElementException:
                     snSpider.items['product_discount_jd'] = 'no discount'
                 yield snSpider.items
+                #this caused stale whatever error
                 self.driver.switch_to_window(home_page)
+                print('dddd')

@@ -7,7 +7,6 @@ import scrapy
 
 
 class TmallspiderItem(scrapy.Item):
-    # define the fields for your item here like:
     product_name_tmall = scrapy.Field()
     product_price_tmall = scrapy.Field()
     product_discount_tmall = scrapy.Field()
