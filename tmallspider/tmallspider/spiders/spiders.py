@@ -150,7 +150,7 @@ class snSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('searchKeywords').send_keys('beats powerbeats pro')
+        self.driver.find_element_by_id('searchKeywords').send_keys('airpods pro')
         time.sleep(1)
         self.driver.find_element_by_id('searchSubmit').click()
         n = 0
@@ -170,7 +170,10 @@ class snSpider(scrapy.Spider):
                 snSpider.items['product_name_sn'] = product_name_sn
                 snSpider.items['product_price_sn'] = product_price_sn
                 try:
-                    product_discount_sn = self.driver.find_elements_by_css_selector('.p-quan-white')
+                    product_discount_sn_list = self.driver.find_elements_by_css_selector('.p-quan-white')
+                    product_discount_sn = ''
+                    for i in range(len(product_discount_sn_list)):
+                        product_discount_sn += product_discount_sn_list[i].text
                     snSpider.items['product_discount_sn'] = product_discount_sn
                 except NoSuchElementException:
                     snSpider.items['product_discount_sn'] = 'no discount'
@@ -178,7 +181,7 @@ class snSpider(scrapy.Spider):
                 self.driver.switch_to_window(home_page)
                 print('dddd')
 
-
+'''
 process = CrawlerProcess(settings={
     "FEEDS": {
         "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall', 'product_discount_tmall'],},
@@ -193,3 +196,4 @@ process.crawl(jdSpider)
 process.crawl(snSpider)
 process.crawl(ddSpider)
 process.start()
+'''
