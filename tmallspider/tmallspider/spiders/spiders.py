@@ -122,21 +122,32 @@ class jdSpider(scrapy.Spider):
 
 class ddSpider(scrapy.Spider):
     name = 'ddspider'
-    output = encodeGB2312('ipad air 3')
     start_urls = [
-        'http://search.dangdang.com/?key={}&act=input'.format(output)
+        'http://www.dangdang.com'
     ]
+    items = DdspiderItem()
+    def __init__(self):
+        self.driver = webdriver.Chrome(executable_path = '/usr/bin/chromedriver')
 
     def parse(self, response):
-        open_in_browser(response)
-        items = DdspiderItem()
-        product_info = response.css('#component_59 li')
-        for product in product_info:
-            product_name_dd = product.css('.name a::attr(title)').extract()
-            product_price_dd = product.css('.price_n::text').extract()
-            items['product_name_dd'] = product_name_dd
-            items['product_price_dd'] = product_price_dd
-            yield items
+        self.driver.get(response.url)
+        self.driver.find_element_by_id('key_S').send_keys('乔布斯传')
+        time.sleep(1)
+        self.driver.find_element_by_css_selector('.button').click()
+        n = 0
+        for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '#component_59 li'))):
+            if n < 5:
+                n += 1
+                product_name_dd = element.find_element_by_css_selector('.name a , .skcolor_ljg').text
+                product_price_dd = element.find_element_by_css_selector('.search_now_price').text
+                try:
+                    product_discount_dd = element.find_element_by_css_selector('.new_lable2').text
+                except NoSuchElementException:
+                    product_discount_dd = 'no discount'
+                ddSpider.items['product_name_dd'] = product_name_dd
+                ddSpider.items['product_price_dd'] = product_price_dd
+                ddSpider.items['product_discount_dd'] = product_discount_dd
+                yield ddSpider.items
 
 class snSpider(scrapy.Spider):
     name = 'snspider'
@@ -160,11 +171,8 @@ class snSpider(scrapy.Spider):
                 n += 1
                 time.sleep(2)
                 element.click()
-
                 window_detail = self.driver.window_handles[n]
-
                 self.driver.switch_to_window(window_detail)
-
                 product_name_sn = self.driver.find_element_by_css_selector('#itemDisplayName').text
                 product_price_sn = self.driver.find_element_by_css_selector('.mainprice').text
                 snSpider.items['product_name_sn'] = product_name_sn
