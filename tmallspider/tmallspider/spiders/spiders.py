@@ -150,7 +150,7 @@ class snSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('searchKeywords').send_keys('iPad Air 3')
+        self.driver.find_element_by_id('searchKeywords').send_keys('beats powerbeats pro')
         time.sleep(1)
         self.driver.find_element_by_id('searchSubmit').click()
         n = 0
@@ -158,23 +158,22 @@ class snSpider(scrapy.Spider):
         for element in WebDriverWait(self.driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.item-bg'))):
             if n < 5:
                 n += 1
+                time.sleep(2)
                 element.click()
-                print('aaaaaa' + n.__str__())
+
                 window_detail = self.driver.window_handles[n]
-                print('bbbbb' + window_detail)
+
                 self.driver.switch_to_window(window_detail)
-                print('ccccc')
-                product_name_sn = element.find_element_by_css_selector('#itemDisplayName').text
-                product_price_sn = element.find_element_by_css_selector('.mainprice').text
+
+                product_name_sn = self.driver.find_element_by_css_selector('#itemDisplayName').text
+                product_price_sn = self.driver.find_element_by_css_selector('.mainprice').text
                 snSpider.items['product_name_sn'] = product_name_sn
                 snSpider.items['product_price_sn'] = product_price_sn
                 try:
                     product_discount_sn = self.driver.find_elements_by_css_selector('.p-quan-white')
-                    print("eeee" + product_discount_sn)
-                    #snSpider.items['product_discount_jd'] = product_discount_sn
+                    snSpider.items['product_discount_sn'] = product_discount_sn
                 except NoSuchElementException:
-                    snSpider.items['product_discount_jd'] = 'no discount'
+                    snSpider.items['product_discount_sn'] = 'no discount'
                 yield snSpider.items
-                #this caused stale whatever error
                 self.driver.switch_to_window(home_page)
                 print('dddd')
