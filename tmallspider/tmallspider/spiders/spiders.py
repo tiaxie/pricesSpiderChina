@@ -17,10 +17,15 @@ import urllib.parse
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 
+#Cmd+Shift+K to push for github
+
 def encodeGB2312(data):
     hexData = data.encode(encoding='GB2312').hex().upper()
     encoded = '%' + '%'.join(hexData[i:i + 2] for i in range(0, len(hexData), 2))
     return encoded
+
+ilist = ['iPad Air 3', 'Airpods Pro']
+s_input = 'iPad Air 3'
 
 class tmallSpider(scrapy.Spider):
     name = 'ttspider'
@@ -45,7 +50,7 @@ class tmallSpider(scrapy.Spider):
         self.driver.find_element_by_class_name('fm-btn').click()
         #fm-button fm-submit password-login
         time.sleep(5)
-        self.driver.find_element_by_name('q').send_keys('beats powerbeats pro')
+        self.driver.find_element_by_name('q').send_keys(s_input)
         time.sleep(2)
         self.driver.find_element_by_css_selector('button').click()
         n = 0
@@ -89,7 +94,7 @@ class jdSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('key').send_keys('beats powerbeats pro')
+        self.driver.find_element_by_id('key').send_keys(s_input)
         time.sleep(2)
         self.driver.find_element_by_css_selector('.button').click()
         n = 0
@@ -126,12 +131,13 @@ class ddSpider(scrapy.Spider):
         'http://www.dangdang.com'
     ]
     items = DdspiderItem()
+
     def __init__(self):
         self.driver = webdriver.Chrome(executable_path = '/usr/bin/chromedriver')
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('key_S').send_keys('乔布斯传')
+        self.driver.find_element_by_id('key_S').send_keys(s_input)
         time.sleep(1)
         self.driver.find_element_by_css_selector('.button').click()
         n = 0
@@ -161,7 +167,7 @@ class snSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        self.driver.find_element_by_id('searchKeywords').send_keys('airpods pro')
+        self.driver.find_element_by_id('searchKeywords').send_keys(s_input)
         time.sleep(1)
         self.driver.find_element_by_id('searchSubmit').click()
         n = 0
@@ -189,7 +195,7 @@ class snSpider(scrapy.Spider):
                 self.driver.switch_to_window(home_page)
                 print('dddd')
 
-'''
+
 process = CrawlerProcess(settings={
     "FEEDS": {
         "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall', 'product_discount_tmall'],},
@@ -204,4 +210,3 @@ process.crawl(jdSpider)
 process.crawl(snSpider)
 process.crawl(ddSpider)
 process.start()
-'''
