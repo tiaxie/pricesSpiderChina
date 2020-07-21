@@ -177,3 +177,19 @@ class snSpider(scrapy.Spider):
                 yield snSpider.items
                 self.driver.switch_to_window(home_page)
                 print('dddd')
+
+
+process = CrawlerProcess(settings={
+    "FEEDS": {
+        "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall', 'product_discount_tmall'],},
+        "jditem.csv": {"format": "csv", 'fields': ['product_name_jd', 'product_price_jd', 'product_discount_jd'],},
+        "snitem.csv": {"format": "csv", 'fields': ['product_name_sn', 'product_price_sn', 'product_discount_sn'],},
+        "dditem.csv": {"format": "csv", 'fields': ['product_name_dd', 'product_price_dd', 'product_discount_dd'],},
+    },
+})
+
+process.crawl(tmallSpider)
+process.crawl(jdSpider)
+process.crawl(snSpider)
+process.crawl(ddSpider)
+process.start()
