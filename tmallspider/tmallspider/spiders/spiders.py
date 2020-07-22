@@ -24,8 +24,7 @@ def encodeGB2312(data):
     encoded = '%' + '%'.join(hexData[i:i + 2] for i in range(0, len(hexData), 2))
     return encoded
 
-ilist = ['iPad Air 3', 'Airpods Pro']
-s_input = 'iPad Air 3'
+s_input = '华为p40 pro'
 
 class tmallSpider(scrapy.Spider):
     name = 'ttspider'
@@ -194,7 +193,6 @@ class snSpider(scrapy.Spider):
                 yield snSpider.items
                 self.driver.switch_to_window(home_page)
                 print('dddd')
-
 
 process = CrawlerProcess(settings={
     "FEEDS": {
