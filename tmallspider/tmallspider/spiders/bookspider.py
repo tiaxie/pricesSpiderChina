@@ -22,12 +22,10 @@ def encodeGB2312(data):
     encoded = '%' + '%'.join(hexData[i:i + 2] for i in range(0, len(hexData), 2))
     return encoded
 
-s_input = '耐克t恤男 ar5007'
-
-inputlist = ['iPad Air 3', 'oppo reno 4 pro']
+s_input = 'oppo reno 4 pro'
 
 class tmallSpider(scrapy.Spider):
-    name = 'ttspider'
+    name = 'tttspider'
     start_urls = [
         'http://login.tmall.com'
     ]
@@ -82,7 +80,7 @@ class tmallSpider(scrapy.Spider):
                 self.driver.switch_to_window(home_page)
 
 class jdSpider(scrapy.Spider):
-    name = 'jjspider'
+    name = 'jjjspider'
     start_urls = [
         'http://jd.com'
     ]
@@ -125,7 +123,7 @@ class jdSpider(scrapy.Spider):
                 self.driver.switch_to_window(home_page)
 
 class ddSpider(scrapy.Spider):
-    name = 'ddspider'
+    name = 'dddspider'
     start_urls = [
         'http://www.dangdang.com'
     ]
@@ -155,7 +153,7 @@ class ddSpider(scrapy.Spider):
                 yield ddSpider.items
 
 class snSpider(scrapy.Spider):
-    name = 'snspider'
+    name = 'ssnspider'
 
     start_urls = [
        'https://www.suning.com/'
@@ -193,20 +191,19 @@ class snSpider(scrapy.Spider):
                 yield snSpider.items
                 self.driver.switch_to_window(home_page)
 
+'''
+process = CrawlerProcess(settings={
+    "FEEDS": {
+        "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall', 'product_discount_tmall'],},
+        "jditem.csv": {"format": "csv", 'fields': ['product_name_jd', 'product_price_jd', 'product_discount_jd'],},
+        "snitem.csv": {"format": "csv", 'fields': ['product_name_sn', 'product_price_sn', 'product_discount_sn'],},
+        "dditem.csv": {"format": "csv", 'fields': ['product_name_dd', 'product_price_dd', 'product_discount_dd'],},
+    },
+})
 
-if __name__ == '__main__':
-    process = CrawlerProcess(settings={
-        "FEEDS": {
-             "itemtmall.csv": {"format": "csv",
-                               'fields': ['product_name_tmall', 'product_price_tmall', 'product_discount_tmall'], },
-              "itemjd.csv": {"format": "csv",
-                             'fields': ['product_name_jd', 'product_price_jd', 'product_discount_jd'], },
-             "itemsn.csv": {"format": "csv",
-                            'fields': ['product_name_sn', 'product_price_sn', 'product_discount_sn'], },
-        },
-    })
-
-    process.crawl(tmallSpider)
-    process.crawl(jdSpider)
-    process.crawl(snSpider)
-    process.start()
+process.crawl(tmallSpider)
+process.crawl(jdSpider)
+process.crawl(snSpider)
+process.crawl(ddSpider)
+process.start()
+'''

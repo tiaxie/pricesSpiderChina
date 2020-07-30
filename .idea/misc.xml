@@ -5,6 +5,7 @@
   </component>
   <component name="ProjectPlainTextFileTypeManager">
     <file url="file://$PROJECT_DIR$/tmallspider/tmallspider/spiders/jditem.csv" />
+    <file url="file://$PROJECT_DIR$/tmallspider/tt.csv" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (Tmall)" project-jdk-type="Python SDK" />
 </project>

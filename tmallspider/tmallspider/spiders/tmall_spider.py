@@ -138,10 +138,10 @@ class snSpider(scrapy.Spider):
 '''
 process = CrawlerProcess(settings={
     "FEEDS": {
-        "tmallitem.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall'],},
-        "jditem.csv": {"format": "csv", 'fields': ['product_name_jd', 'product_price_jd'],},
-        "snitem.csv": {"format": "csv", 'fields': ['product_name_sn', 'product_price_sn'],},
-        "dditem.csv": {"format": "csv", 'fields': ['product_name_dd', 'product_price_dd'],},
+        "itemtmall.csv": {"format": "csv", 'fields': ['product_name_tmall', 'product_price_tmall'],},
+        "itemjd.csv": {"format": "csv", 'fields': ['product_name_jd', 'product_price_jd'],},
+        "itemsn.csv": {"format": "csv", 'fields': ['product_name_sn', 'product_price_sn'],},
+        "itemdd.csv": {"format": "csv", 'fields': ['product_name_dd', 'product_price_dd'],},
     },
 })
 
